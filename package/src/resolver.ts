@@ -1,5 +1,10 @@
 //!依存パッケージ!//
-import { ApplicationCommandType, Collection, Interaction } from 'discord.js';
+import {
+	ApplicationCommandType,
+	AutocompleteInteraction,
+	Collection,
+	Interaction,
+} from 'discord.js';
 import fs from 'node:fs';
 import path from 'node:path';
 //!依存パッケージ!//
@@ -61,6 +66,8 @@ export function collectBuilder(...pathList: string[]) {
 		handler: async (interaction: Interaction) => {
 			if (interaction.isChatInputCommand()) {
 				await executeCommand(interaction, collections.slashCommand);
+			} else if (interaction.isAutocomplete()) {
+				await executeAutocomplete(interaction, collections.slashCommand);
 			} else if (interaction.isUserContextMenuCommand()) {
 				await executeCommand(interaction, collections.userContext);
 			} else if (interaction.isMessageContextMenuCommand()) {
@@ -148,5 +155,18 @@ async function executeCommand<T extends AnyCommandInteraction>(
 			console.log(`Error on component "${interaction.commandName}"`);
 			console.error(error);
 		}
+	}
+}
+
+async function executeAutocomplete(
+	interaction: AutocompleteInteraction,
+	collection: Collection<string, AnyCommandData>
+) {
+	const command = collection.get(interaction.commandName);
+	if (!command) {
+		console.log(`Command "${interaction.commandName}" not found.`);
+	} else {
+		if (!command.autocomplete) return;
+		await command.autocomplete(interaction);
 	}
 }

@@ -22,6 +22,7 @@ import {
 	ApplicationCommandType,
 	UserContextMenuCommandInteraction,
 	MessageContextMenuCommandInteraction,
+	AutocompleteInteraction,
 } from 'discord.js';
 
 /**

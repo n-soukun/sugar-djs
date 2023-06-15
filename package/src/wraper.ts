@@ -1,6 +1,7 @@
 //!依存パッケージ!//
 import {
 	ApplicationCommandType,
+	AutocompleteInteraction,
 	ContextMenuCommandBuilder,
 	ContextMenuCommandType,
 } from 'discord.js';
@@ -23,6 +24,8 @@ import { encodeId } from './custom-id';
 	CommandBuilderWraper
 ////////////////////////////////////////////////////////////*/
 
+type AutocompleteProcess = (input: AutocompleteInteraction) => void;
+
 /**
  * コマンドビルダーの型情報
  */
@@ -42,7 +45,7 @@ interface CommandBuilderParms<
  */
 interface CommandBuilderDef<TParms extends CommandBuilderParms> {
 	builder: TParms['_builder'];
-	autocomplete?: () => void;
+	autocomplete?: AutocompleteProcess;
 	middlewares: DiscateMiddleware<TParms['_interaction']>[];
 	type: ApplicationCommandType;
 }
@@ -51,7 +54,7 @@ type AnyCommandBuilderDef = CommandBuilderDef<any>;
 
 type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(
 	command: T
-) => CommandProcessRegister<{
+) => AutocompleteRegister<{
 	_builder: T;
 	_builderType: ApplicationCommandType;
 	_processInputData: MiddlewareInput<inferBuilder<T>>;
@@ -79,10 +82,9 @@ interface CommandProcessRegister<TParms extends CommandBuilderParms> {
 	}>;
 }
 
-interface AutocompleteRegister<TParms extends CommandBuilderParms> {
-	setAutocomplete<T extends TParms['_processInputData']>(
-		fc: (input: TParms['_processInputData']) => T
-	): CommandProcessRegister<{
+interface AutocompleteRegister<TParms extends CommandBuilderParms>
+	extends CommandProcessRegister<TParms> {
+	setAutocomplete(fc: (input: AutocompleteInteraction) => void): CommandProcessRegister<{
 		_builder: TParms['_builder'];
 		_builderType: TParms['_builderType'];
 		_processInputData: TParms['_processInputData'];
@@ -95,6 +97,7 @@ interface AutocompleteRegister<TParms extends CommandBuilderParms> {
  */
 interface CommandData<TParms extends CommandBuilderParms> {
 	data: TParms['_builder'];
+	autocomplete?: AutocompleteProcess;
 	middlewares: DiscateMiddleware<TParms['_interaction']>[];
 	execute(input: TParms['_processInputData']): void;
 }
@@ -102,11 +105,20 @@ interface CommandData<TParms extends CommandBuilderParms> {
 export type AnyCommandData = CommandData<any>;
 
 const createCommandBuilder: CommandBuilder = function (command) {
-	return createCommandProcessRegister({
+	const _def = {
 		middlewares: [],
 		type: ApplicationCommandType.ChatInput,
 		builder: command,
-	});
+	};
+	return {
+		...createCommandProcessRegister(_def),
+		setAutocomplete: (process) => {
+			return createCommandProcessRegister({
+				..._def,
+				autocomplete: process,
+			});
+		},
+	};
 };
 
 function createCommandProcessRegister<TParms extends CommandBuilderParms>(
@@ -126,6 +138,7 @@ function createCommandProcessRegister<TParms extends CommandBuilderParms>(
 		setProcess(process) {
 			return {
 				data: _def.builder,
+				autocomplete: _def.autocomplete,
 				middlewares: _def.middlewares,
 				execute: process,
 			};
