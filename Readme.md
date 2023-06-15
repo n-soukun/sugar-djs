@@ -1,0 +1,2 @@
+# Discate
+discord.jsをTypeScriptでもっと楽しく書くためのライブラリ
