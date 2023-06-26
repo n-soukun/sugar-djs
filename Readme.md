@@ -1,2 +1,2 @@
-# Discate
+# discordjs-builder-wraper
 discord.jsをTypeScriptでもっと楽しく書くためのライブラリ

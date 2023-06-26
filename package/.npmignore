@@ -1,5 +1,5 @@
 /node_modules
 /src
-/example
 tsconfig.json
 .prettierrc
+.gitignore

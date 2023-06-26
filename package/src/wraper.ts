@@ -1,4 +1,3 @@
-//!依存パッケージ!//
 import {
 	ApplicationCommandType,
 	AutocompleteInteraction,
@@ -6,7 +5,6 @@ import {
 	ContextMenuCommandType,
 } from 'discord.js';
 import { z } from 'zod';
-//!依存パッケージ!//
 
 import {
 	AnyCommandBuilder,
@@ -15,6 +13,7 @@ import {
 	AnyComponentInteraction,
 	DiscateMiddleware,
 	MiddlewareInput,
+	UnwrapOrDefault,
 	inferBuilder,
 	inferCommandType,
 } from './types';
@@ -67,12 +66,12 @@ type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(
 interface CommandProcessRegister<TParms extends CommandBuilderParms> {
 	_def: CommandBuilderDef<TParms>;
 	addMiddleware<T extends TParms['_processInputData']>(
-		fc: (input: TParms['_processInputData']) => T
+		fc: (input: TParms['_processInputData']) => T | Promise<T>
 	): CommandProcessRegister<{
 		_builder: TParms['_builder'];
 		_builderType: TParms['_builderType'];
-		_processInputData: T;
-		_interaction: T['interaction'];
+		_processInputData: Awaited<T>;
+		_interaction: Awaited<T['interaction']>;
 	}>;
 	setProcess(process: (input: TParms['_processInputData']) => void): CommandData<{
 		_builder: TParms['_builder'];
@@ -82,8 +81,7 @@ interface CommandProcessRegister<TParms extends CommandBuilderParms> {
 	}>;
 }
 
-interface AutocompleteRegister<TParms extends CommandBuilderParms>
-	extends CommandProcessRegister<TParms> {
+interface AutocompleteRegister<TParms extends CommandBuilderParms> extends CommandProcessRegister<TParms> {
 	setAutocomplete(fc: (input: AutocompleteInteraction) => void): CommandProcessRegister<{
 		_builder: TParms['_builder'];
 		_builderType: TParms['_builderType'];
@@ -172,9 +170,7 @@ const createCtxCommandBuilder: ContextBuilder = function (command) {
 	return createCommandTypeRegister(command);
 };
 
-function createCommandTypeRegister<T extends ContextMenuCommandBuilder>(
-	builder: T
-): ContextMenuCommandTypeRegister {
+function createCommandTypeRegister<T extends ContextMenuCommandBuilder>(builder: T): ContextMenuCommandTypeRegister {
 	return {
 		setType: (type) => {
 			builder.setType(type);
@@ -201,20 +197,20 @@ function getCurrentId() {
 
 interface ComponentBuilderParms<
 	Schema = any,
-	Args = z.ZodArray<z.ZodString, any>,
+	Args extends z.ZodArray<z.ZodString> = z.ZodArray<z.ZodString>,
 	Builder extends AnyComponentBuilder = AnyComponentBuilder,
 	Interaction extends AnyComponentInteraction = AnyComponentInteraction<any>
 > {
 	_schema: Schema;
 	_builder: Builder;
-	_args: Args;
+	_args: Args | undefined;
 	_processInputData: MiddlewareInput<Interaction>;
 	_interaction: Interaction;
 }
 
-type BuilderFC<
-	TParms extends Omit<ComponentBuilderParms, '_args' | '_interaction' | '_processInputData'>
-> = (input: TParms['_schema']) => TParms['_builder'];
+type BuilderFC<TParms extends Omit<ComponentBuilderParms, '_args' | '_interaction' | '_processInputData'>> = (
+	input: TParms['_schema']
+) => TParms['_builder'];
 
 interface ComponentBuilderDef<TParms extends ComponentBuilderParms> {
 	customId: string;
@@ -230,32 +226,32 @@ type ComponentBuilder = <T = undefined, U extends AnyComponentBuilder = AnyCompo
 ) => ComponentProcessRegister<{
 	_schema: T;
 	_builder: ReturnType<typeof component>;
-	_args: z.ZodArray<z.ZodString, any>;
+	_args: undefined;
 	_processInputData: MiddlewareInput<inferBuilder<ReturnType<typeof component>>>;
 	_interaction: inferBuilder<ReturnType<typeof component>>;
 }>;
 
 interface ComponentProcessRegister<TParms extends ComponentBuilderParms> {
 	_def: ComponentBuilderDef<TParms>;
-	useArgs<Schema extends z.ZodArray<z.ZodString, any>>(
-		schema: Schema
+	useArgs<Schema extends ComponentBuilderParms['_args'] = undefined>(
+		schema?: (z: z.ZodArray<z.ZodString, any>) => Schema
 	): ComponentProcessRegister<{
 		_schema: TParms['_schema'];
 		_builder: TParms['_builder'];
-		_args: Schema;
+		_args: UnwrapOrDefault<Schema, z.ZodArray<z.ZodString, any>>;
 		_processInputData: TParms['_processInputData'] & {
-			args: z.infer<Schema>;
+			args: z.infer<UnwrapOrDefault<Schema, z.ZodArray<z.ZodString, any>>>;
 		};
 		_interaction: TParms['_interaction'];
 	}>;
 	addMiddleware<T extends TParms['_processInputData']>(
-		fc: (input: TParms['_processInputData']) => T
+		fc: (input: TParms['_processInputData']) => T | Promise<T>
 	): ComponentProcessRegister<{
 		_schema: TParms['_schema'];
 		_builder: TParms['_builder'];
 		_args: TParms['_args'];
-		_processInputData: T;
-		_interaction: T['interaction'];
+		_processInputData: Awaited<T>;
+		_interaction: Awaited<T['interaction']>;
 	}>;
 	setProcess(process: (input: TParms['_processInputData']) => void): ComponentData<{
 		_builder: TParms['_builder'];
@@ -266,12 +262,19 @@ interface ComponentProcessRegister<TParms extends ComponentBuilderParms> {
 	}>;
 }
 
+type componentFC<TParms extends Omit<ComponentBuilderParms, '_interaction' | '_processInputData'>> =
+	TParms['_schema'] extends undefined
+		? TParms['_args'] extends undefined
+			? (input?: any, args?: string[]) => TParms['_builder']
+			: (input: any | undefined, args: z.infer<Exclude<TParms['_args'], undefined>>) => TParms['_builder']
+		: TParms['_args'] extends undefined
+		? (input: TParms['_schema'], args?: string[]) => TParms['_builder']
+		: (input: TParms['_schema'], args: z.infer<Exclude<TParms['_args'], undefined>>) => TParms['_builder'];
+
 interface ComponentData<TParms extends ComponentBuilderParms> {
 	args: TParms['_args'];
 	customId: string;
-	component: TParms['_schema'] extends undefined
-		? (args?: z.infer<TParms['_args']>) => TParms['_builder']
-		: (input: TParms['_schema'], args?: z.infer<TParms['_args']>) => TParms['_builder'];
+	component: componentFC<TParms>;
 	middlewares: DiscateMiddleware<TParms['_interaction']>[];
 	execute(input: TParms['_processInputData']): void;
 }
@@ -282,7 +285,7 @@ const createComponentBuilder: ComponentBuilder = function (component) {
 	const customId = getCurrentId();
 	return createComponentProcessRegister({
 		customId,
-		args: z.array(z.string()).optional(),
+		args: undefined,
 		middlewares: [],
 		component,
 	});
@@ -291,11 +294,12 @@ const createComponentBuilder: ComponentBuilder = function (component) {
 function createComponentProcessRegister<TParms extends ComponentBuilderParms>(
 	initDef: AnyComponentBuilderDef
 ): ComponentProcessRegister<TParms> {
-	//ToDo: componentsフォルダ配下でなくても動くように変更したい
 	const _def = { ...initDef };
 	return {
 		_def,
-		useArgs: (schema) => {
+		useArgs: (fc?) => {
+			const arrayString = z.array(z.string());
+			const schema = fc ? fc(arrayString) : arrayString;
 			return createComponentProcessRegister({
 				..._def,
 				args: schema,
@@ -323,7 +327,7 @@ function createComponentData<TParms extends ComponentBuilderParms>(
 	_processInputData: TParms['_processInputData'];
 	_interaction: TParms['_interaction'];
 }> {
-	const component = (input?: TParms['_schema'], args?: z.infer<TParms['_args']>) => {
+	const component = (input?: TParms['_schema'], args?: z.infer<Exclude<TParms['_args'], undefined>>) => {
 		const builder = initdef.component(input);
 		let customId: string;
 		if (args?.length) {

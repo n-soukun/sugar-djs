@@ -1,13 +1,6 @@
-//!依存パッケージ!//
-import {
-	ApplicationCommandType,
-	AutocompleteInteraction,
-	Collection,
-	Interaction,
-} from 'discord.js';
-import fs from 'node:fs';
-import path from 'node:path';
-//!依存パッケージ!//
+import { ApplicationCommandType, AutocompleteInteraction, Collection, Interaction } from 'discord.js';
+import fs from 'fs';
+import path from 'path';
 
 import { parseCustomId } from './custom-id';
 import { AnyCommandData, AnyComponentData } from './wraper';
@@ -31,7 +24,7 @@ export function collectBuilder(...pathList: string[]) {
 			const filePath = path.join(currentDir, dirent.name);
 			if (dirent.isDirectory()) {
 				pathList.push(filePath); // ディレクトリの場合は探索キューに追加
-			} else if (dirent.name.endsWith('.js')) {
+			} else if (dirent.name.endsWith('.js') || dirent.name.endsWith('.ts')) {
 				const item = require(filePath).default as AnyCommandData | AnyComponentData;
 				if (!item || !('execute' in item)) return console.log('return');
 
@@ -72,11 +65,7 @@ export function collectBuilder(...pathList: string[]) {
 				await executeCommand(interaction, collections.userContext);
 			} else if (interaction.isMessageContextMenuCommand()) {
 				await executeCommand(interaction, collections.messageContext);
-			} else if (
-				interaction.isButton() ||
-				interaction.isModalSubmit() ||
-				interaction.isAnySelectMenu()
-			) {
+			} else if (interaction.isButton() || interaction.isModalSubmit() || interaction.isAnySelectMenu()) {
 				await executeComponent(interaction, collections.component);
 			}
 		},

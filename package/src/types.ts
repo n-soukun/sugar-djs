@@ -22,17 +22,15 @@ import {
 	ApplicationCommandType,
 	UserContextMenuCommandInteraction,
 	MessageContextMenuCommandInteraction,
-	AutocompleteInteraction,
 } from 'discord.js';
+
+export type UnwrapOrDefault<V, D> = V extends undefined ? D : Exclude<V, undefined>;
 
 /**
  * スマートコンポーネントで作れるコマンド
  */
 
-type SlashCommandBuilder =
-	| SCB
-	| Omit<SCB, 'addSubcommand' | 'addSubcommandGroup'>
-	| SlashCommandSubcommandsOnlyBuilder;
+type SlashCommandBuilder = SCB | Omit<SCB, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandSubcommandsOnlyBuilder;
 
 export type AnyCommandBuilder = SlashCommandBuilder | ContextMenuCommandBuilder;
 
@@ -113,9 +111,8 @@ export interface MiddlewareInput<T extends AnyInteraction = AnyInteraction<any>>
 	interaction: T;
 }
 
-export interface MiddlewareInputWithArgs<
-	T extends AnyComponentInteraction = AnyComponentInteraction<any>
-> extends MiddlewareInput<T> {
+export interface MiddlewareInputWithArgs<T extends AnyComponentInteraction = AnyComponentInteraction<any>>
+	extends MiddlewareInput<T> {
 	interaction: T;
 	args: string[];
 }
@@ -123,4 +120,4 @@ export interface MiddlewareInputWithArgs<
 export type DiscateMiddleware<
 	T extends AnyInteraction = AnyInteraction,
 	U extends MiddlewareInput<T> = MiddlewareInput<T>
-> = (input: MiddlewareInput<T>) => U;
+> = (input: MiddlewareInput<T>) => U | Promise<U>;
