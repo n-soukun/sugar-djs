@@ -1,6 +1,6 @@
 {
 	"name": "discordjs-builder-wraper",
-	"version": "0.0.3",
+	"version": "0.0.5",
 	"description": "",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
 	"author": "soukun",
 	"license": "MIT",
 	"dependencies": {
-		"discord.js": "^14.11.0",
-		"zod": "^3.21.4"
+		"discord.js": "^14.16.3",
+		"zod": "^3.23.8"
 	}
 }
