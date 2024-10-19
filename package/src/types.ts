@@ -22,6 +22,7 @@ import {
 	ApplicationCommandType,
 	UserContextMenuCommandInteraction,
 	MessageContextMenuCommandInteraction,
+	SlashCommandOptionsOnlyBuilder,
 } from 'discord.js';
 
 export type UnwrapOrDefault<V, D> = V extends undefined ? D : Exclude<V, undefined>;
@@ -30,7 +31,11 @@ export type UnwrapOrDefault<V, D> = V extends undefined ? D : Exclude<V, undefin
  * スマートコンポーネントで作れるコマンド
  */
 
-type SlashCommandBuilder = SCB | Omit<SCB, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandSubcommandsOnlyBuilder;
+type SlashCommandBuilder =
+	| SCB
+	| Omit<SCB, 'addSubcommand' | 'addSubcommandGroup'>
+	| SlashCommandOptionsOnlyBuilder
+	| SlashCommandSubcommandsOnlyBuilder;
 
 export type AnyCommandBuilder = SlashCommandBuilder | ContextMenuCommandBuilder;
 

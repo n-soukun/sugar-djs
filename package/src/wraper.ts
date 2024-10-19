@@ -197,7 +197,7 @@ function getCurrentId() {
 
 interface ComponentBuilderParms<
 	Schema = any,
-	Args extends z.ZodArray<z.ZodString> = z.ZodArray<z.ZodString>,
+	Args extends z.ZodArray<z.ZodString, any> = z.ZodArray<z.ZodString, any>,
 	Builder extends AnyComponentBuilder = AnyComponentBuilder,
 	Interaction extends AnyComponentInteraction = AnyComponentInteraction<any>
 > {
@@ -298,7 +298,7 @@ function createComponentProcessRegister<TParms extends ComponentBuilderParms>(
 	return {
 		_def,
 		useArgs: (fc?) => {
-			const arrayString = z.array(z.string());
+			const arrayString: z.ZodArray<z.ZodString, any> = z.array(z.string());
 			const schema = fc ? fc(arrayString) : arrayString;
 			return createComponentProcessRegister({
 				..._def,
