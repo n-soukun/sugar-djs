@@ -4,7 +4,7 @@ import path from 'path';
 
 import { parseCustomId } from './custom-id';
 import { AnyCommandData, AnyComponentData } from './wraper';
-import { AnyCommandInteraction, AnyComponentInteraction, MiddlewareInput } from './types';
+import { AnyCommandInteraction, AnyComponentInteraction, MiddlewarePayload } from './types';
 
 export function collectBuilder(...pathList: string[]) {
 	const collections = {
@@ -87,7 +87,7 @@ async function executeComponent<T extends AnyComponentInteraction>(
 		console.log(`Component "${interaction.customId}" not found.`);
 	} else {
 		try {
-			let processInput: MiddlewareInput<T> & { args?: string[] } = {
+			let processInput: MiddlewarePayload<T> & { args?: string[] } = {
 				interaction,
 				args,
 			};
@@ -126,7 +126,7 @@ async function executeCommand<T extends AnyCommandInteraction>(
 		console.log(`Command "${interaction.commandName}" not found.`);
 	} else {
 		try {
-			let processInput: MiddlewareInput<T> = { interaction };
+			let processInput: MiddlewarePayload<T> = { interaction };
 			let result: boolean = true;
 			for (let i = 0; i < command.middlewares.length; i++) {
 				const middleware = command.middlewares[i];

@@ -1,3 +1,3 @@
 export * from './wraper';
-export { AnyInteraction, MiddlewareInput } from './types';
+export { AnyInteraction, MiddlewarePayload } from './types';
 export { collectBuilder } from './resolver';

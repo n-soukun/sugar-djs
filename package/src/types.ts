@@ -112,17 +112,18 @@ export type inferCommandType<CommandType extends ApplicationCommandType> =
 		? MessageContextMenuCommandInteraction
 		: never;
 
-export interface MiddlewareInput<T extends AnyInteraction = AnyInteraction<any>> {
+export type MiddlewarePayload<T extends AnyInteraction = AnyInteraction<any>, U extends any = {}> = {
 	interaction: T;
-}
+} & U;
 
-export interface MiddlewareInputWithArgs<T extends AnyComponentInteraction = AnyComponentInteraction<any>>
-	extends MiddlewareInput<T> {
+export interface MiddlewarePayloadWithArgs<T extends AnyComponentInteraction = AnyComponentInteraction<any>>
+	extends MiddlewarePayload<T, { args: string[] }> {
 	interaction: T;
 	args: string[];
 }
 
 export type DiscateMiddleware<
-	T extends AnyInteraction = AnyInteraction,
-	U extends MiddlewareInput<T> = MiddlewareInput<T>
-> = (input: MiddlewareInput<T>) => U | Promise<U>;
+	T extends AnyInteraction = AnyInteraction<any>,
+	U extends any = {},
+	V extends MiddlewarePayload<T, U> = MiddlewarePayload<T, U>
+> = (input: MiddlewarePayload<T, U>) => V | Promise<V>;

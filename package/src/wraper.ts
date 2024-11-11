@@ -12,7 +12,7 @@ import {
 	AnyComponentBuilder,
 	AnyComponentInteraction,
 	DiscateMiddleware,
-	MiddlewareInput,
+	MiddlewarePayload,
 	UnwrapOrDefault,
 	inferBuilder,
 	inferCommandType,
@@ -35,7 +35,7 @@ interface CommandBuilderParms<
 > {
 	_builder: Builder;
 	_builderType: BuilderType;
-	_processInputData: MiddlewareInput<Interaction>;
+	_processInputData: MiddlewarePayload<Interaction>;
 	_interaction: Interaction;
 }
 
@@ -56,7 +56,7 @@ type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(
 ) => AutocompleteRegister<{
 	_builder: T;
 	_builderType: ApplicationCommandType;
-	_processInputData: MiddlewareInput<inferBuilder<T>>;
+	_processInputData: MiddlewarePayload<inferBuilder<T>>;
 	_interaction: inferBuilder<T>;
 }>;
 
@@ -161,7 +161,7 @@ interface ContextMenuCommandTypeRegister {
 	): CommandProcessRegister<{
 		_builder: ContextMenuCommandBuilder;
 		_builderType: T;
-		_processInputData: MiddlewareInput<inferCommandType<T>>;
+		_processInputData: MiddlewarePayload<inferCommandType<T>>;
 		_interaction: inferCommandType<T>;
 	}>;
 }
@@ -204,7 +204,7 @@ interface ComponentBuilderParms<
 	_schema: Schema;
 	_builder: Builder;
 	_args: Args | undefined;
-	_processInputData: MiddlewareInput<Interaction>;
+	_processInputData: MiddlewarePayload<Interaction>;
 	_interaction: Interaction;
 }
 
@@ -227,7 +227,7 @@ type ComponentBuilder = <T = undefined, U extends AnyComponentBuilder = AnyCompo
 	_schema: T;
 	_builder: ReturnType<typeof component>;
 	_args: undefined;
-	_processInputData: MiddlewareInput<inferBuilder<ReturnType<typeof component>>>;
+	_processInputData: MiddlewarePayload<inferBuilder<ReturnType<typeof component>>>;
 	_interaction: inferBuilder<ReturnType<typeof component>>;
 }>;
 
