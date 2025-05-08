@@ -81,14 +81,14 @@ export class WrapperCollection {
 	/**
 	 * Return json list for registering commands to Discord.
 	 */
-	public toJSON(): string[] {
+	public toJSON = (): string[] => {
 		let commands = this.collections.slashCommands;
 		commands = commands.concat(this.collections.userCtxCommands);
 		commands = commands.concat(this.collections.messageCtxCommands);
 		return commands.map((c) => c.data.toJSON());
-	}
+	};
 
-	public async interactionCreateHandler(interaction: Interaction) {
+	public interactionCreateHandler = async (interaction: Interaction) => {
 		if (interaction.isCommand()) {
 			await this.executeCommand(interaction);
 		} else if (interaction.isAutocomplete()) {
@@ -96,7 +96,7 @@ export class WrapperCollection {
 		} else if (interaction.isButton() || interaction.isModalSubmit() || interaction.isAnySelectMenu()) {
 			await this.executeComponent(interaction);
 		}
-	}
+	};
 
 	/**
 	 * Execute a component process.

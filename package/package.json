@@ -1,6 +1,6 @@
 {
 	"name": "suger-djs",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Library for writing discord.js in TypeScript for more fun!",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
