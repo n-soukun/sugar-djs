@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
-import { handler } from './builders';
+import wrappers from './sugerdjs';
 
 dotenv.config();
 
@@ -12,6 +12,6 @@ client.once('ready', () => {
 	console.log(`Ready! Logged in as ${client.user?.tag}`);
 });
 
-client.on('interactionCreate', handler);
+client.on('interactionCreate', wrappers.interactionCreateHandler);
 
 client.login(process.env.DISCORD_TOKEN);

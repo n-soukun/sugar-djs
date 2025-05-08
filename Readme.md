@@ -1,2 +1,2 @@
-# discordjs-builder-wraper
+# discordjs-builder-wrapper
 discord.jsをTypeScriptでもっと楽しく書くためのライブラリ

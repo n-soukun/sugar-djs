@@ -1,7 +1,8 @@
 import { SlashCommandBuilder, inlineCode } from 'discord.js';
-import { wraper } from '../../../../package/dist';
+import { wrapper } from '../../../../package/dist';
+import { isCachedGuild } from '../middlewares';
 
-export default wraper
+export default wrapper
 	.setCommand(
 		new SlashCommandBuilder()
 			.setName('color')
@@ -41,8 +42,8 @@ export default wraper
 		const filtered = choices.filter((choices) => choices.name.startsWith(focusedValue));
 		await interaction.respond(filtered);
 	})
+	.addMiddleware(isCachedGuild)
 	.setProcess(async ({ interaction }) => {
-		if (!interaction.inCachedGuild()) return;
 		const colorCode = interaction.options.getString('name', true);
 		await interaction.reply('Color code: ' + inlineCode(colorCode));
 	});

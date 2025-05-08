@@ -27,6 +27,8 @@ import {
 
 export type UnwrapOrDefault<V, D> = V extends undefined ? D : Exclude<V, undefined>;
 
+export type MaybePromise<T> = T | Promise<T>;
+
 /**
  * スマートコンポーネントで作れるコマンド
  */
@@ -122,8 +124,8 @@ export interface MiddlewarePayloadWithArgs<T extends AnyComponentInteraction = A
 	args: string[];
 }
 
-export type DiscateMiddleware<
+export type Middleware<
 	T extends AnyInteraction = AnyInteraction<any>,
 	U extends any = {},
 	V extends MiddlewarePayload<T, U> = MiddlewarePayload<T, U>
-> = (input: MiddlewarePayload<T, U>) => V | Promise<V>;
+> = (input: MiddlewarePayload<T, U>) => MaybePromise<V | void>;

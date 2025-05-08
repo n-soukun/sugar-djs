@@ -1,13 +1,18 @@
 import { ButtonBuilder, ButtonStyle } from 'discord.js';
-import { wraper } from '../../../../package/dist/';
+import { wrapper } from '../../../../package/dist/';
 
 interface PongButtonInput {
 	label: string;
 }
 
-const pongButton = wraper
-	.setComponent((input: PongButtonInput) =>
-		new ButtonBuilder().setLabel(input.label).setStyle(ButtonStyle.Primary)
+const pongButton = wrapper
+	.setComponent(
+		(input: PongButtonInput) =>
+			new ButtonBuilder()
+				.setCustomId('pong_button')
+				.setLabel(input.label)
+				.setStyle(ButtonStyle.Primary),
+		{ label: 'Pong!' }
 	)
 	.useArgs((z) => z.nonempty().length(1))
 	.setProcess(({ interaction, args }) => {

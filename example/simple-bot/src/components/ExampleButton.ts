@@ -1,8 +1,13 @@
 import { ButtonBuilder, ButtonStyle } from 'discord.js';
-import { wraper } from '../../../../package/dist/';
+import { wrapper } from '../../../../package/dist/';
 
-const helloWorldButton = wraper
-	.setComponent(() => new ButtonBuilder().setLabel('Greet').setStyle(ButtonStyle.Primary))
+const helloWorldButton = wrapper
+	.setComponent(
+		new ButtonBuilder()
+			.setCustomId('hello_world_button')
+			.setLabel('Greet')
+			.setStyle(ButtonStyle.Primary)
+	)
 	.setProcess(({ interaction }) => {
 		interaction.reply('hello, world!');
 	});

@@ -1,19 +1,19 @@
 import { ActionRowBuilder, ButtonBuilder, SlashCommandBuilder } from 'discord.js';
-import { wraper } from '../../../../package/dist';
+import { wrapper } from '../../../../package/dist';
 import pongButton from '../components/PongButton';
 import helloWorldButton from '../components/ExampleButton';
-import { checkGuildCache } from '../middlewares';
+import { isCachedGuild } from '../middlewares';
 
-export default wraper
+export default wrapper
 	.setCommand(
 		new SlashCommandBuilder().setName('ping').setDescription('Send button and message!')
 	)
-	.addMiddleware(checkGuildCache)
+	.addMiddleware(isCachedGuild)
 	.setProcess(({ interaction }) => {
 		const components = [
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				pongButton.component({ label: 'Pong!' }, [interaction.member.displayName]),
-				helloWorldButton.component()
+				helloWorldButton.component
 			),
 		];
 		interaction.reply({ content: 'Ping!', components });

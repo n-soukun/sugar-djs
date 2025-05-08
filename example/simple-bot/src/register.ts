@@ -1,6 +1,6 @@
 import { REST, Routes } from 'discord.js';
 import dotenv from 'dotenv';
-import { commandDataJSON } from './builders';
+import wrappers from './sugerdjs';
 
 dotenv.config();
 
@@ -14,7 +14,7 @@ const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
 	try {
-		const commands = commandDataJSON();
+		const commands = wrappers.toJSON();
 		await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
 			body: commands,
 		});

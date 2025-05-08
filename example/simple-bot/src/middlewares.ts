@@ -3,7 +3,7 @@ import { AnyInteraction, MiddlewarePayload } from '../../../package/dist';
 
 type CachedAnyInteraction = AnyInteraction<'cached'>;
 
-export const checkGuildCache = <T extends AnyInteraction, U>({
+export const isCachedGuild = <T extends AnyInteraction, U>({
 	interaction,
 	...payload
 }: MiddlewarePayload<T, U>) => {
@@ -15,7 +15,7 @@ export const checkGuildCache = <T extends AnyInteraction, U>({
 			embeds: [embed],
 			ephemeral: true,
 		});
-		throw new Error();
+		return; // エラーをスローせずに終了
 	}
 	return { interaction, ...payload };
 };

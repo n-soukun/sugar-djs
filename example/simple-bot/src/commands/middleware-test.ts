@@ -1,14 +1,14 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { wraper } from '../../../../package/dist';
-import { checkGuildCache, exampleMiddlewareA, exampleMiddlewareB } from '../middlewares';
+import { wrapper } from '../../../../package/dist';
+import { exampleMiddlewareA, exampleMiddlewareB, isCachedGuild } from '../middlewares';
 
-export default wraper
+export default wrapper
 	.setCommand(
 		new SlashCommandBuilder()
 			.setName('middleware-test')
 			.setDescription('Return result of middleware test.')
 	)
-	.addMiddleware(checkGuildCache)
+	.addMiddleware(isCachedGuild)
 	.addMiddleware(exampleMiddlewareA)
 	.addMiddleware(exampleMiddlewareB)
 	.setProcess(({ interaction, exampleA, exampleB }) => {

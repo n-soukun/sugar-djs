@@ -1,7 +1,7 @@
 {
-	"name": "discordjs-builder-wraper",
+	"name": "suger-djs",
 	"version": "0.0.6",
-	"description": "",
+	"description": "Library for writing discord.js in TypeScript for more fun!",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
