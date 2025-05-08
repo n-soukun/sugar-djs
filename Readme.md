@@ -104,4 +104,4 @@ await rest.put(Routes.applicationCommands(CLIENT_ID), {
 ```
 
 # ライセンス
-MIT License
+MIT License (see `LICENSE` file).
