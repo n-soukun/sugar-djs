@@ -2,6 +2,12 @@
 
 Library for writing discord.js in TypeScript for more fun!
 
+## Supported Versions
+
+```
+discord.js: "^14.23.2"
+```
+
 # Usege
 
 SlashCommand Example

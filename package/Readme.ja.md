@@ -2,7 +2,13 @@
 
 discord.jsをTypeScriptでもっと楽しく書くためのライブラリ！
 
-# 使い方の例
+## 対応バージョン
+
+```
+discord.js: "^14.23.2"
+```
+
+## 使い方の例
 
 `SlashCommand`のサンプル
 
@@ -25,19 +31,19 @@ export default wrapper
 	});
 ```
 
-# 特徴
+## 特徴
 
 `Suger-DJS`を使うと、一部の型指定を省略したり、共通の処理を簡単に挿入できたりすることで、スピーディーにボットを制作することができます。
 
-## 適切なInteraction型を推論
+### 適切なInteraction型を推論
 
 `Suger-DJS`は、渡された`Builder`から適切な`Interaction`を選択して、`setProcess`メソッドの引数の型に指定します。
 
-## ミドルウェア概念の導入
+### ミドルウェア概念の導入
 
 コマンドやコンポーネントの処理の前に、ミドルウェアを追加することができます。ミドルウェアは、`Interaction`を含むペイロードを使って処理を行い、元のペイロードと追加のデータを返すことができます。また、ペイロードに含まれる形を絞る事もできます。
 
-### Interactionが'cached'であることを確認する例
+#### Interactionが'cached'であることを確認する例
 ```typescript
 import { AnyInteraction, MiddlewarePayload } from 'suger-djs';
 
@@ -53,9 +59,9 @@ export const isCachedInteraction = <T extends AnyInteraction, U>({
 };
 ```
 
-# 導入方法
+## 導入方法
 
-## 1. sugerdjs.tsの作成
+### 1. sugerdjs.tsの作成
 
 コマンドやコンポーネントが格納されているディレクトリを指定して、`WrapperCollection`に渡します。
 
@@ -72,7 +78,7 @@ export default new WrapperCollection({
 });
 ```
 
-## 2.discord.jsに接続
+### 2.discord.jsに接続
 
 手順1で作成した`WrapperCollection`の`interactionCreateHandler`をdiscord.jsの`InteractionCreate`イベントにイベントハンドラーとして渡します。
 
@@ -84,7 +90,7 @@ client.on('interactionCreate', wrappers.interactionCreateHandler);
 ...
 ```
 
-## 3.register.tsの作成
+### 3.register.tsの作成
 
 手順1で作成した`WrapperCollection`の`toJSON`メソッドを活用すると、簡単にコマンドやコンポーネントを登録する処理が書けます。
 
@@ -103,5 +109,5 @@ await rest.put(Routes.applicationCommands(CLIENT_ID), {
 });
 ```
 
-# ライセンス
-MIT License
+## ライセンス
+MIT License (see `LICENSE` file).
