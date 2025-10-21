@@ -14,6 +14,7 @@ import {
 	RoleSelectMenuInteraction,
 	MentionableSelectMenuInteraction,
 	ChannelSelectMenuInteraction,
+	PrimaryEntryPointCommandInteraction,
 	SlashCommandBuilder as SCB,
 	ChatInputCommandInteraction,
 	ContextMenuCommandBuilder,
@@ -62,7 +63,8 @@ export type AnyCommandInteraction<Cached extends CacheType = CacheType> =
 	| ChatInputCommandInteraction<Cached>
 	| ContextMenuCommandInteraction<Cached>
 	| UserContextMenuCommandInteraction<Cached>
-	| MessageContextMenuCommandInteraction<Cached>;
+	| MessageContextMenuCommandInteraction<Cached>
+	| PrimaryEntryPointCommandInteraction<Cached>;
 
 /**
  * スマートコンポーネントで扱うコンポーネントインタラクション

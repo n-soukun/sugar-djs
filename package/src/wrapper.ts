@@ -210,7 +210,7 @@ function createCommandTypeRegister<T extends ContextMenuCommandBuilder>(builder:
 
 interface ComponentBuilderParms<
 	Schema = any,
-	Args extends z.ZodArray<z.ZodString, any> = z.ZodArray<z.ZodString, any>,
+	Args extends z.ZodArray<z.ZodString> = z.ZodArray<z.ZodString>,
 	Builder extends AnyComponentBuilder = AnyComponentBuilder,
 	ComponentType extends 'function' | 'builder' = 'function' | 'builder',
 	Interaction extends AnyComponentInteraction = AnyComponentInteraction<any>
@@ -253,14 +253,14 @@ interface ComponentProcessRegister<TParms extends ComponentBuilderParms> {
 	_def: ComponentBuilderDef<TParms>;
 	setCustomId(customId: string): ComponentProcessRegister<TParms>;
 	useArgs<Schema extends ComponentBuilderParms['_args'] = undefined>(
-		schema?: (z: z.ZodArray<z.ZodString, any>) => Schema
+		schema?: (z: z.ZodArray<z.ZodString>) => Schema
 	): ComponentProcessRegister<{
 		_schema: TParms['_schema'];
 		_builder: TParms['_builder'];
 		_componentType: TParms['_componentType'];
-		_args: UnwrapOrDefault<Schema, z.ZodArray<z.ZodString, any>>;
+		_args: UnwrapOrDefault<Schema, z.ZodArray<z.ZodString>>;
 		_processInputData: TParms['_processInputData'] & {
-			args: z.infer<UnwrapOrDefault<Schema, z.ZodArray<z.ZodString, any>>>;
+			args: z.infer<UnwrapOrDefault<Schema, z.ZodArray<z.ZodString>>>;
 		};
 		_interaction: TParms['_interaction'];
 	}>;
@@ -343,7 +343,7 @@ function createComponentProcessRegister<TParms extends ComponentBuilderParms>(
 			});
 		},
 		useArgs: (fc?) => {
-			const arrayString: z.ZodArray<z.ZodString, any> = z.array(z.string());
+			const arrayString: z.ZodArray<z.ZodString> = z.array(z.string());
 			const schema = fc ? fc(arrayString) : arrayString;
 			return createComponentProcessRegister({
 				..._def,
