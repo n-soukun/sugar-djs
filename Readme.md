@@ -1,4 +1,4 @@
-# Suger-DJS (discordjs-builder-wrapper)
+# Sugar-DJS (discordjs-builder-wrapper)
 
 discord.jsをTypeScriptでもっと楽しく書くためのライブラリ！
 
@@ -13,7 +13,7 @@ discord.js: "^14.23.2"
 `SlashCommand`のサンプル
 
 ```typescript
-import { wrapper } from 'suger-djs';
+import { wrapper } from 'sugar-djs';
 import { SlashCommandBuilder } from 'discord.js';
 import { isCachedInteraction } from './middlewares.ts';
 
@@ -33,11 +33,11 @@ export default wrapper
 
 ## 特徴
 
-`Suger-DJS`を使うと、一部の型指定を省略したり、共通の処理を簡単に挿入できたりすることで、スピーディーにボットを制作することができます。
+`Sugar-DJS`を使うと、一部の型指定を省略したり、共通の処理を簡単に挿入できたりすることで、スピーディーにボットを制作することができます。
 
 ### 適切なInteraction型を推論
 
-`Suger-DJS`は、渡された`Builder`から適切な`Interaction`を選択して、`setProcess`メソッドの引数の型に指定します。
+`Sugar-DJS`は、渡された`Builder`から適切な`Interaction`を選択して、`setProcess`メソッドの引数の型に指定します。
 
 ### ミドルウェア概念の導入
 
@@ -45,7 +45,7 @@ export default wrapper
 
 #### Interactionが'cached'であることを確認する例
 ```typescript
-import { AnyInteraction, MiddlewarePayload } from 'suger-djs';
+import { AnyInteraction, MiddlewarePayload } from 'sugar-djs';
 
 export const isCachedInteraction = <T extends AnyInteraction, U>({
 	interaction,
@@ -61,14 +61,14 @@ export const isCachedInteraction = <T extends AnyInteraction, U>({
 
 ## 導入方法
 
-### 1. sugerdjs.tsの作成
+### 1. sugardjs.tsの作成
 
 コマンドやコンポーネントが格納されているディレクトリを指定して、`WrapperCollection`に渡します。
 
 ```typescript
 // sugardjs.ts
 import path from 'path';
-import { WrapperCollection } from 'suger-djs';
+import { WrapperCollection } from 'sugar-djs';
 
 const commandsPath = path.join(__dirname, './commands');
 const componentsPath = path.join(__dirname, './components');
@@ -84,7 +84,7 @@ export default new WrapperCollection({
 
 ```typescript
 // index.ts
-import wrappers from "./sugerdjs";
+import wrappers from "./sugardjs";
 ...
 client.on('interactionCreate', wrappers.interactionCreateHandler);
 ...
@@ -97,7 +97,7 @@ client.on('interactionCreate', wrappers.interactionCreateHandler);
 ```typescript
 // register.ts
 import { REST, Routes } from 'discord.js';
-import wrappers from './sugerdjs';
+import wrappers from './sugardjs';
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
