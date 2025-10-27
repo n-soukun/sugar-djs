@@ -1,13 +1,19 @@
-# Suger-DJS (discordjs-builder-wrapper)
+# Sugar-DJS (discordjs-builder-wrapper)
 
 Library for writing discord.js in TypeScript for more fun!
+
+## Supported Versions
+
+```
+discord.js: "^14.23.2"
+```
 
 # Usege
 
 SlashCommand Example
 
 ```typescript
-import { wrapper } from 'suger-djs';
+import { wrapper } from 'sugar-djs';
 import { SlashCommandBuilder } from 'discord.js';
 
 export default wrapper

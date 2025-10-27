@@ -1,6 +1,6 @@
 import { REST, Routes } from 'discord.js';
 import dotenv from 'dotenv';
-import wrappers from './sugerdjs';
+import wrappers from './sugardjs';
 
 dotenv.config();
 
