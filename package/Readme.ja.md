@@ -27,21 +27,40 @@ export default wrapper
     .addMiddleware(isCachedInteraction) // キャッシュされたインタラクションのみ許可
 	.setProcess(({ interaction }) => {
         // interaction: ChatInputCommandInteraction<"cached">;
-		interaction.reply('Ping!');
+		interaction.reply('Pong!');
 	});
 ```
 
 ## 特徴
 
-`Sugar-DJS`を使うと、一部の型指定を省略したり、共通の処理を簡単に挿入できたりすることで、スピーディーにボットを制作することができます。
+`Sugar-DJS`を使うと、一部の型指定を省略したり、共通の処理を簡単に挿入できたりすることで、素早くボットを制作することができます。
 
 ### 適切なInteraction型を推論
 
-`Sugar-DJS`は、渡された`Builder`から適切な`Interaction`を選択して、`setProcess`メソッドの引数の型に指定します。
+`Sugar-DJS`は、渡された`Builder`からコマンドハンドラーの`interaction`の型を推論します。
+
+```typescript
+// 型を手動で指定する例
+export const command = new SlashCommandBuilder().setName('ping')
+export const execute = (interaction: ChatInputCommandInteraction) => {
+	interaction.reply('Pong!');
+} 
+```
+
+```typescript
+// Sugar-DJSのコード
+export default wrapper
+	.setCommand(
+		new SlashCommandBuilder().setName('ping')
+    )
+	.setProcess(({ interaction }) => { // 型が適切に推論されます
+		interaction.reply('Pong!');
+	});
+```
 
 ### ミドルウェア概念の導入
 
-コマンドやコンポーネントの処理の前に、ミドルウェアを追加することができます。ミドルウェアは、`Interaction`を含むペイロードを使って処理を行い、元のペイロードと追加のデータを返すことができます。また、ペイロードに含まれる形を絞る事もできます。
+コマンドやコンポーネントの処理の前に、ミドルウェアを追加することができます。ミドルウェアは、`Interaction`を含むペイロードに対して処理を行い、追加のデータを返すことができます。また、ペイロードの形を絞る事もできます。
 
 #### Interactionが'cached'であることを確認する例
 ```typescript
@@ -63,7 +82,7 @@ export const isCachedInteraction = <T extends AnyInteraction, U>({
 
 ### 1. sugardjs.tsの作成
 
-コマンドやコンポーネントが格納されているディレクトリを指定して、`WrapperCollection`に渡します。
+コマンドやコンポーネントが格納されているディレクトリを指定して、`WrapperCollection`のインスタンスを作成します。
 
 ```typescript
 // sugardjs.ts
@@ -80,7 +99,7 @@ export default new WrapperCollection({
 
 ### 2.discord.jsに接続
 
-手順1で作成した`WrapperCollection`の`interactionCreateHandler`をdiscord.jsの`InteractionCreate`イベントにイベントハンドラーとして渡します。
+手順1で作成した`WrapperCollection`の`interactionCreateHandler`をdiscord.jsの`InteractionCreate`イベントのハンドラーとして渡します。
 
 ```typescript
 // index.ts

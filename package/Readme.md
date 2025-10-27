@@ -23,7 +23,7 @@ export default wrapper
             .setDescription('Send "Pong!"')
     )
 	.setProcess(({ interaction }) => {
-		interaction.reply('Ping!');
+		interaction.reply('Pong!');
 	});
 ```
 
