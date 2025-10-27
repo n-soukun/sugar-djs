@@ -1,4 +1,4 @@
-import { ApplicationCommandType, AutocompleteInteraction, Collection, Interaction } from 'discord.js';
+import { ApplicationCommandType, type AutocompleteInteraction, Collection, type Interaction } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 

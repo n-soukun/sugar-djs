@@ -4,9 +4,10 @@ discord.jsをTypeScriptでもっと楽しく書くためのライブラリ！
 
 ## 対応バージョン
 
-```
-discord.js: "^14.23.2"
-```
+| package version | discord.js version |
+|----|----|
+| 0.3.0 | 14.24.0 |
+| 0.2.1 | 14.23.2 |
 
 ## 使い方の例
 
