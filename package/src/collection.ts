@@ -110,7 +110,7 @@ export class WrapperCollection {
 			console.log(`Component "${interaction.customId}" not found.`);
 		} else {
 			try {
-				this.execute({ interaction, args }, component.execute, component.middlewares);
+				this.execute({ interaction, args }, component.execute, [...component.middlewares]);
 			} catch (error) {
 				console.log(`Error on component "${interaction.customId}"`);
 				console.error(error);
@@ -140,7 +140,7 @@ export class WrapperCollection {
 			console.log(`${commandType} "${interaction.commandName}" not found.`);
 		} else {
 			try {
-				this.execute({ interaction }, command.execute, command.middlewares);
+				this.execute({ interaction }, command.execute, [...command.middlewares]);
 			} catch (error) {
 				console.log(`Error on ${commandType} "${interaction.commandName}"`);
 				console.error(error);
