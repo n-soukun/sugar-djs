@@ -1,4 +1,9 @@
-import { ApplicationCommandType, AutocompleteInteraction, ContextMenuCommandBuilder } from 'discord.js';
+import {
+	ApplicationCommandType,
+	AutocompleteInteraction,
+	ContextMenuCommandBuilder,
+	ContextMenuCommandType,
+} from 'discord.js';
 import { z } from 'zod';
 
 import {
@@ -64,16 +69,16 @@ interface CommandBuilderDef<TParms extends CommandBuilderParms> {
 
 type AnyCommandBuilderDef = CommandBuilderDef<any>;
 
-type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(
-	command: T
-) => inferInteractionType<T> extends ApplicationCommandType.ChatInput
-	? AutocompleteRegister<{
+type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(command: T) => CommandBuilderReturnType<T>;
+
+type CommandBuilderReturnType<T extends AnyCommandBuilder> = T extends ContextMenuCommandBuilder
+	? CommandTypeRegister<{
 			_builder: T;
 			_builderType: inferInteractionType<T>;
 			_processInputData: MiddlewarePayload<inferInteraction<T>>;
 			_interaction: inferInteraction<T>;
 	  }>
-	: CommandProcessRegister<{
+	: AutocompleteRegister<{
 			_builder: T;
 			_builderType: inferInteractionType<T>;
 			_processInputData: MiddlewarePayload<inferInteraction<T>>;
@@ -110,6 +115,18 @@ interface AutocompleteRegister<TParms extends CommandBuilderParms> extends Comma
 	}>;
 }
 
+interface CommandTypeRegister<TParms extends CommandBuilderParms> {
+	_def: CommandBuilderDef<TParms>;
+	setType<T extends ContextMenuCommandType>(
+		type: T
+	): CommandProcessRegister<{
+		_builder: TParms['_builder'];
+		_builderType: T;
+		_processInputData: MiddlewarePayload<inferInteraction<TParms['_builder'], T>>;
+		_interaction: inferInteraction<TParms['_builder'], T>;
+	}>;
+}
+
 /**
  * コマンドレジスターやイベントハンドラー用のデータ
  */
@@ -122,7 +139,9 @@ interface CommandData<TParms extends CommandBuilderParms> extends BaseWrapperRet
 
 export type AnyCommandData = CommandData<any>;
 
-const createCommandBuilder: CommandBuilder = function (command) {
+const createCommandBuilder: CommandBuilder = function <T extends AnyCommandBuilder>(
+	command: T
+): CommandBuilderReturnType<T> {
 	let type = ApplicationCommandType.ChatInput;
 	if (command instanceof ContextMenuCommandBuilder) {
 		type = command.type;
@@ -134,9 +153,22 @@ const createCommandBuilder: CommandBuilder = function (command) {
 		builder: command,
 	};
 
+	if (command instanceof ContextMenuCommandBuilder) {
+		return commandTypeRegister(_def) as CommandBuilderReturnType<T>;
+	} else {
+		return autocompleteRegister(_def) as CommandBuilderReturnType<T>;
+	}
+};
+
+function autocompleteRegister<TParms extends CommandBuilderParms>(
+	initDef: AnyCommandBuilderDef
+): AutocompleteRegister<TParms> {
+	const _def: CommandBuilderDef<TParms> = {
+		...initDef,
+	};
 	return {
 		...createCommandProcessRegister(_def),
-		setAutocomplete: (process) => {
+		setAutocomplete(process) {
 			if (_def.type !== ApplicationCommandType.ChatInput) {
 				throw new Error('Autocomplete can only be set for Chat Input commands.');
 			}
@@ -146,7 +178,28 @@ const createCommandBuilder: CommandBuilder = function (command) {
 			});
 		},
 	};
-};
+}
+
+function commandTypeRegister<TParms extends CommandBuilderParms>(
+	initDef: AnyCommandBuilderDef
+): CommandTypeRegister<TParms> {
+	const _def: CommandBuilderDef<TParms> = {
+		...initDef,
+	};
+	return {
+		_def,
+		setType: (type) => {
+			if (!(_def.builder instanceof ContextMenuCommandBuilder)) {
+				throw new Error('setType can only be used with ContextMenuCommandBuilder.');
+			}
+			_def.builder.setType(type);
+			return createCommandProcessRegister({
+				..._def,
+				type,
+			});
+		},
+	};
+}
 
 function createCommandProcessRegister<TParms extends CommandBuilderParms>(
 	initDef: AnyCommandBuilderDef
