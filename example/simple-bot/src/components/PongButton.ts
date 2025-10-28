@@ -1,5 +1,6 @@
 import { ButtonBuilder, ButtonStyle } from 'discord.js';
 import { wrapper } from '../../../../package/dist/';
+import { exampleMiddlewareC } from '../middlewares';
 
 interface PongButtonInput {
 	label: string;
@@ -14,6 +15,7 @@ const pongButton = wrapper
 				.setStyle(ButtonStyle.Primary),
 		{ label: 'Pong!' }
 	)
+	.addMiddleware(exampleMiddlewareC)
 	.useArgs((z) => z.nonempty().length(1))
 	.setProcess(({ interaction, args }) => {
 		interaction.reply('Pong! by' + args[0]);

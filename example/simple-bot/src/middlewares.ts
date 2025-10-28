@@ -37,3 +37,15 @@ export const exampleMiddlewareB = <T extends CachedAnyInteraction, U extends { e
 		...payload,
 	};
 };
+
+export const exampleMiddlewareC = <T extends AnyInteraction, U>({
+	interaction,
+	...payload
+}: MiddlewarePayload<T, U>) => {
+	if (true) {
+		interaction.reply('This is an example middleware C response!');
+		return; // エラーをスローせずに終了
+	}
+
+	return { interaction, ...payload };
+};

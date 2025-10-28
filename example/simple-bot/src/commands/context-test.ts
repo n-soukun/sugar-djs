@@ -3,7 +3,7 @@ import { wrapper } from '../../../../package/dist';
 import { isCachedGuild } from '../middlewares';
 
 export default wrapper
-	.setCommand(new ContextMenuCommandBuilder().setName('Test Context'))
+	.setCtxCommand(new ContextMenuCommandBuilder().setName('Test Context'))
 	.setType(ApplicationCommandType.Message)
 	.addMiddleware(isCachedGuild)
 	.setProcess(({ interaction }) => {

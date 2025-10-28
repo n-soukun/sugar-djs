@@ -34,7 +34,7 @@ export type MaybePromise<T> = T | Promise<T>;
  * スマートコンポーネントで作れるコマンド
  */
 
-type SlashCommandBuilder =
+export type SlashCommandBuilder =
 	| SCB
 	| Omit<SCB, 'addSubcommand' | 'addSubcommandGroup'>
 	| SlashCommandOptionsOnlyBuilder
@@ -125,12 +125,12 @@ export type inferInteractionType<T extends AnyCommandBuilder> = T extends SlashC
 /**
  * コマンドタイプからコンテキストメニューインタラクションへ変換
  */
-// export type inferCommandType<CommandType extends ApplicationCommandType> =
-// 	CommandType extends ApplicationCommandType.User
-// 		? UserContextMenuCommandInteraction
-// 		: CommandType extends ApplicationCommandType.Message
-// 		? MessageContextMenuCommandInteraction
-// 		: never;
+export type inferCommandType<CommandType extends ApplicationCommandType> =
+	CommandType extends ApplicationCommandType.User
+		? UserContextMenuCommandInteraction
+		: CommandType extends ApplicationCommandType.Message
+		? MessageContextMenuCommandInteraction
+		: never;
 
 export type MiddlewarePayload<T extends AnyInteraction = AnyInteraction<any>, U extends any = {}> = {
 	interaction: T;
