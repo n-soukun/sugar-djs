@@ -1,9 +1,4 @@
-import type {
-	ApplicationCommandType,
-	AutocompleteInteraction,
-	ContextMenuCommandBuilder,
-	ContextMenuCommandType,
-} from 'discord.js';
+import { ApplicationCommandType, AutocompleteInteraction, ContextMenuCommandBuilder } from 'discord.js';
 import { z } from 'zod';
 
 import {
@@ -18,7 +13,7 @@ import {
 	MiddlewarePayload,
 	UnwrapOrDefault,
 	inferBuilder,
-	inferCommandType,
+	inferBuilderType,
 } from './types';
 import { encodeId } from './custom-id';
 
@@ -71,12 +66,19 @@ type AnyCommandBuilderDef = CommandBuilderDef<any>;
 
 type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(
 	command: T
-) => AutocompleteRegister<{
-	_builder: T;
-	_builderType: ApplicationCommandType;
-	_processInputData: MiddlewarePayload<inferBuilder<T>>;
-	_interaction: inferBuilder<T>;
-}>;
+) => inferBuilderType<T> extends ApplicationCommandType.ChatInput
+	? AutocompleteRegister<{
+			_builder: T;
+			_builderType: inferBuilderType<T>;
+			_processInputData: MiddlewarePayload<inferBuilder<T>>;
+			_interaction: inferBuilder<T>;
+	  }>
+	: CommandProcessRegister<{
+			_builder: T;
+			_builderType: inferBuilderType<T>;
+			_processInputData: MiddlewarePayload<inferBuilder<T>>;
+			_interaction: inferBuilder<T>;
+	  }>;
 
 /**
  * コマンドの処理を登録する関数集
@@ -121,14 +123,23 @@ interface CommandData<TParms extends CommandBuilderParms> extends BaseWrapperRet
 export type AnyCommandData = CommandData<any>;
 
 const createCommandBuilder: CommandBuilder = function (command) {
+	let type = ApplicationCommandType.ChatInput;
+	if (command instanceof ContextMenuCommandBuilder) {
+		type = command.type;
+	}
+
 	const _def = {
 		middlewares: [],
-		type: 1, // ApplicationCommandType.ChatInput
+		type: type,
 		builder: command,
 	};
+
 	return {
 		...createCommandProcessRegister(_def),
 		setAutocomplete: (process) => {
+			if (_def.type !== ApplicationCommandType.ChatInput) {
+				throw new Error('Autocomplete can only be set for Chat Input commands.');
+			}
 			return createCommandProcessRegister({
 				..._def,
 				autocomplete: process,
@@ -161,45 +172,6 @@ function createCommandProcessRegister<TParms extends CommandBuilderParms>(
 				middlewares: _def.middlewares,
 				execute: process,
 			};
-		},
-	};
-}
-
-/*////////////////////////////////////////////////////////////
-	ContectMenuCommandBuilderWrapper
-////////////////////////////////////////////////////////////*/
-
-type ContextBuilder = <T extends ContextMenuCommandBuilder = ContextMenuCommandBuilder>(
-	command: T
-) => ContextMenuCommandTypeRegister;
-
-/**
- * コンテキストメニューコマンドのタイプを登録する関数
- */
-interface ContextMenuCommandTypeRegister {
-	setType<T extends ContextMenuCommandType>(
-		type: T
-	): CommandProcessRegister<{
-		_builder: ContextMenuCommandBuilder;
-		_builderType: T;
-		_processInputData: MiddlewarePayload<inferCommandType<T>>;
-		_interaction: inferCommandType<T>;
-	}>;
-}
-
-const createCtxCommandBuilder: ContextBuilder = function (command) {
-	return createCommandTypeRegister(command);
-};
-
-function createCommandTypeRegister<T extends ContextMenuCommandBuilder>(builder: T): ContextMenuCommandTypeRegister {
-	return {
-		setType: (type) => {
-			builder.setType(type);
-			return createCommandProcessRegister({
-				type,
-				middlewares: [],
-				builder: builder,
-			});
 		},
 	};
 }
@@ -408,6 +380,9 @@ function createComponentData<TParms extends ComponentBuilderParms>(
 
 export const wrapper = {
 	setCommand: createCommandBuilder,
-	setCtxCommand: createCtxCommandBuilder,
+	/**
+	 * @deprecated Use setCommand with ContextMenuCommandBuilder instead.
+	 */
+	setCtxCommand: createCommandBuilder,
 	setComponent: createComponentBuilder,
 };

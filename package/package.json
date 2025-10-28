@@ -16,8 +16,14 @@
 		"type": "git",
 		"url": "git+https://github.com/n-soukun/sugar-djs.git"
 	},
+	"peerDependencies": {
+		"discord.js": ">=14.23.2 <15"
+	},
 	"dependencies": {
-		"discord.js": "^14.24.0",
 		"zod": "^4.1.12"
+	},
+	"devDependencies": {
+		"discord.js": "^14.24.0",
+		"typescript": "^5.9.3"
 	}
 }

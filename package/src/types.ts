@@ -109,6 +109,18 @@ export type inferBuilder<
 	? inferCommandType<CommandType>
 	: never;
 
+/**
+ * コマンドビルダーからコマンドタイプへ変換
+ */
+export type inferBuilderType<T extends AnyCommandBuilder> = T extends SlashCommandBuilder
+	? ApplicationCommandType.ChatInput
+	: T extends ContextMenuCommandBuilder
+	? T['type']
+	: never;
+
+/**
+ * コマンドタイプからコンテキストメニューインタラクションへ変換
+ */
 export type inferCommandType<CommandType extends ApplicationCommandType> =
 	CommandType extends ApplicationCommandType.User
 		? UserContextMenuCommandInteraction
