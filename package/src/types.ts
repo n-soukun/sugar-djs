@@ -86,7 +86,7 @@ export type AnyInteraction<Cached extends CacheType = CacheType> =
 /**
  * ビルダーからインターフェースへ変換
  */
-export type inferBuilder<
+export type inferInteraction<
 	Builder extends AnyBuilder,
 	CommandType extends ApplicationCommandType = ApplicationCommandType
 > = Builder extends ButtonBuilder
@@ -112,7 +112,7 @@ export type inferBuilder<
 /**
  * コマンドビルダーからコマンドタイプへ変換
  */
-export type inferBuilderType<T extends AnyCommandBuilder> = T extends SlashCommandBuilder
+export type inferInteractionType<T extends AnyCommandBuilder> = T extends SlashCommandBuilder
 	? ApplicationCommandType.ChatInput
 	: T extends ContextMenuCommandBuilder
 	? T['type']

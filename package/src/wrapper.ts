@@ -12,8 +12,8 @@ import {
 	Middleware,
 	MiddlewarePayload,
 	UnwrapOrDefault,
-	inferBuilder,
-	inferBuilderType,
+	inferInteraction,
+	inferInteractionType,
 } from './types';
 import { encodeId } from './custom-id';
 
@@ -66,18 +66,18 @@ type AnyCommandBuilderDef = CommandBuilderDef<any>;
 
 type CommandBuilder = <T extends AnyCommandBuilder = AnyCommandBuilder>(
 	command: T
-) => inferBuilderType<T> extends ApplicationCommandType.ChatInput
+) => inferInteractionType<T> extends ApplicationCommandType.ChatInput
 	? AutocompleteRegister<{
 			_builder: T;
-			_builderType: inferBuilderType<T>;
-			_processInputData: MiddlewarePayload<inferBuilder<T>>;
-			_interaction: inferBuilder<T>;
+			_builderType: inferInteractionType<T>;
+			_processInputData: MiddlewarePayload<inferInteraction<T>>;
+			_interaction: inferInteraction<T>;
 	  }>
 	: CommandProcessRegister<{
 			_builder: T;
-			_builderType: inferBuilderType<T>;
-			_processInputData: MiddlewarePayload<inferBuilder<T>>;
-			_interaction: inferBuilder<T>;
+			_builderType: inferInteractionType<T>;
+			_processInputData: MiddlewarePayload<inferInteraction<T>>;
+			_interaction: inferInteraction<T>;
 	  }>;
 
 /**
@@ -217,8 +217,8 @@ type ComponentBuilder = <T extends AnyComponentBuilder | ((input: V) => AnyCompo
 	_builder: UnwrapBuilderFC<T>;
 	_componentType: inferComponentType<T>;
 	_args: undefined;
-	_processInputData: MiddlewarePayload<inferBuilder<UnwrapBuilderFC<T>>>;
-	_interaction: inferBuilder<UnwrapBuilderFC<T>>;
+	_processInputData: MiddlewarePayload<inferInteraction<UnwrapBuilderFC<T>>>;
+	_interaction: inferInteraction<UnwrapBuilderFC<T>>;
 }>;
 
 interface ComponentProcessRegister<TParms extends ComponentBuilderParms> {
