@@ -106,7 +106,11 @@ export type inferInteraction<
 	: Builder extends SlashCommandBuilder
 	? ChatInputCommandInteraction
 	: Builder extends ContextMenuCommandBuilder
-	? inferCommandType<CommandType>
+	? CommandType extends ApplicationCommandType.User
+		? UserContextMenuCommandInteraction
+		: CommandType extends ApplicationCommandType.Message
+		? MessageContextMenuCommandInteraction
+		: never
 	: never;
 
 /**
@@ -121,12 +125,12 @@ export type inferInteractionType<T extends AnyCommandBuilder> = T extends SlashC
 /**
  * コマンドタイプからコンテキストメニューインタラクションへ変換
  */
-export type inferCommandType<CommandType extends ApplicationCommandType> =
-	CommandType extends ApplicationCommandType.User
-		? UserContextMenuCommandInteraction
-		: CommandType extends ApplicationCommandType.Message
-		? MessageContextMenuCommandInteraction
-		: never;
+// export type inferCommandType<CommandType extends ApplicationCommandType> =
+// 	CommandType extends ApplicationCommandType.User
+// 		? UserContextMenuCommandInteraction
+// 		: CommandType extends ApplicationCommandType.Message
+// 		? MessageContextMenuCommandInteraction
+// 		: never;
 
 export type MiddlewarePayload<T extends AnyInteraction = AnyInteraction<any>, U extends any = {}> = {
 	interaction: T;
