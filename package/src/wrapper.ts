@@ -290,13 +290,13 @@ interface ComponentProcessRegister<TParms extends ComponentBuilderParms> {
 		_interaction: TParms['_interaction'];
 	}>;
 	addMiddleware<T extends TParms['_processInputData']>(
-		fc: (input: TParms['_processInputData']) => T | Promise<T>
+		fc: (input: TParms['_processInputData']) => MaybePromise<T | undefined>
 	): ComponentProcessRegister<{
 		_schema: TParms['_schema'];
 		_builder: TParms['_builder'];
 		_componentType: TParms['_componentType'];
 		_args: TParms['_args'];
-		_processInputData: Awaited<T>;
+		_processInputData: Exclude<Awaited<T>, undefined>;
 		_interaction: Awaited<T['interaction']>;
 	}>;
 	setProcess(process: (input: TParms['_processInputData']) => void): ComponentData<{
