@@ -113,7 +113,7 @@ interface AutocompleteRegister<TParms extends CommandBuilderParms> extends Comma
 /**
  * コマンドレジスターやイベントハンドラー用のデータ
  */
-interface CommandData<TParms extends CommandBuilderParms> extends BaseWrapperReturnData<TParms['_interaction']> {
+export interface CommandData<TParms extends CommandBuilderParms> extends BaseWrapperReturnData<TParms['_interaction']> {
 	data: TParms['_builder'];
 	autocomplete?: AutocompleteProcess;
 	middlewares: Middleware<TParms['_interaction']>[];
@@ -310,7 +310,8 @@ type componentFC<TParms extends Omit<ComponentBuilderParms, '_interaction' | '_p
 			: (input: TParms['_schema'], args: z.infer<Exclude<TParms['_args'], undefined>>) => TParms['_builder']
 		: TParms['_builder'];
 
-interface ComponentData<TParms extends ComponentBuilderParms> extends BaseWrapperReturnData<TParms['_interaction']> {
+export interface ComponentData<TParms extends ComponentBuilderParms>
+	extends BaseWrapperReturnData<TParms['_interaction']> {
 	args: TParms['_args'];
 	customId: string;
 	component: componentFC<TParms>;
