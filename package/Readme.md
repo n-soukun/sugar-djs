@@ -6,7 +6,8 @@ Library for writing discord.js in TypeScript for more fun!
 
 | package version | discord.js version |
 |----|----|
-| 0.4.0 | >=14.23.2 <15 |
+| 0.5.0 | >=14.25.0 <15 |
+| 0.4.0 | >=14.23.2 <14.25 |
 | 0.3.0 | 14.24.0 |
 | 0.2.1 | 14.23.2 |
 
