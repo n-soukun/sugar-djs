@@ -1,6 +1,6 @@
 {
 	"name": "sugar-djs",
-	"version": "0.4.5",
+	"version": "0.5.0",
 	"description": "Library for writing discord.js in TypeScript for more fun!",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -17,13 +17,13 @@
 		"url": "git+https://github.com/n-soukun/sugar-djs.git"
 	},
 	"peerDependencies": {
-		"discord.js": ">=14.23.2 <15"
+		"discord.js": ">=14.25.0 <15"
 	},
 	"dependencies": {
 		"zod": "^4.1.12"
 	},
 	"devDependencies": {
-		"discord.js": "^14.24.0",
+		"discord.js": "14.25.0",
 		"typescript": "^5.9.3"
 	}
 }

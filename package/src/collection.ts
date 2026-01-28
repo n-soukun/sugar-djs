@@ -1,4 +1,10 @@
-import { ApplicationCommandType, type AutocompleteInteraction, Collection, type Interaction } from 'discord.js';
+import {
+	ApplicationCommandType,
+	type AutocompleteInteraction,
+	CacheType,
+	Collection,
+	type Interaction,
+} from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -88,7 +94,7 @@ export class WrapperCollection {
 		return commands.map((c) => c.data.toJSON());
 	};
 
-	public interactionCreateHandler = async (interaction: Interaction) => {
+	public interactionCreateHandler = async (interaction: Interaction<CacheType>) => {
 		if (interaction.isCommand()) {
 			await this.executeCommand(interaction);
 		} else if (interaction.isAutocomplete()) {
@@ -172,7 +178,7 @@ export class WrapperCollection {
 	private async execute<
 		T extends AnyInteraction = AnyInteraction<any>,
 		U extends object = {},
-		V extends MiddlewarePayload<T, U> = MiddlewarePayload<T, U>
+		V extends MiddlewarePayload<T, U> = MiddlewarePayload<T, U>,
 	>(
 		payload: V,
 		command: (input: MiddlewarePayload<T>) => MaybePromise<void>,
