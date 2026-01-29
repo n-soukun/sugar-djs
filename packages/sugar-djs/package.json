@@ -1,6 +1,6 @@
 {
 	"name": "sugar-djs",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Library for writing discord.js in TypeScript for more fun!",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
