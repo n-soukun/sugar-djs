@@ -13,6 +13,13 @@ import type {
 	MiddlewarePayload,
 } from './types.js';
 
+const pathToFileURL = (filePath: string): URL => {
+	const isAbsolute = path.isAbsolute(filePath);
+	const resolvedPath = isAbsolute ? path.resolve(filePath) : path.resolve(process.cwd(), filePath);
+	const fileUrl = new URL(`file://${resolvedPath.split(path.sep).join('/')}`);
+	return fileUrl;
+};
+
 export interface WrapperCollectionOptions {
 	paths: string[];
 }
@@ -25,9 +32,13 @@ export interface WrapperCollectionCollections {
 }
 
 export class WrapperCollection {
-	public readonly collections: WrapperCollectionCollections;
-	constructor(private options: WrapperCollectionOptions) {
-		this.collections = {
+	constructor(
+		public readonly collections: WrapperCollectionCollections,
+		public readonly options: WrapperCollectionOptions
+	) {}
+
+	public static async create(options: WrapperCollectionOptions): Promise<WrapperCollection> {
+		const collections = {
 			slashCommands: new Collection<string, AnyCommandData>(),
 			userCtxCommands: new Collection<string, AnyCommandData>(),
 			messageCtxCommands: new Collection<string, AnyCommandData>(),
@@ -35,13 +46,13 @@ export class WrapperCollection {
 		};
 
 		// ファイル探索
-		let pathList = this.options.paths;
+		let pathList = options.paths;
 		while (pathList.length) {
 			const currentDir = pathList.shift();
 			if (!currentDir) continue;
 
 			const dirents = fs.readdirSync(currentDir, { withFileTypes: true });
-			dirents.forEach((dirent) => {
+			for (const dirent of dirents) {
 				const filePath = path.join(currentDir, dirent.name);
 				if (dirent.isDirectory()) {
 					pathList.push(filePath); // ディレクトリの場合は探索キューに追加
@@ -49,13 +60,14 @@ export class WrapperCollection {
 					dirent.name.endsWith('.js') ||
 					(dirent.name.endsWith('.ts') && !dirent.name.endsWith('.d.ts'))
 				) {
-					let fileData: unknown = require(filePath);
-					if (!fileData) return;
+					const fileUrl = pathToFileURL(filePath).href;
+					let fileData: unknown = await import(fileUrl);
+					if (!fileData) continue;
 					if (typeof fileData === 'object' && 'default' in fileData) {
 						fileData = fileData.default;
 					}
 					const item = fileData as AnyCommandData | AnyComponentData;
-					if (!('execute' in item)) return;
+					if (!('execute' in item)) continue;
 
 					if ('data' in item) {
 						// Any Command
@@ -63,22 +75,23 @@ export class WrapperCollection {
 							// AnyContextMenuCommand
 							if (item.data.type == ApplicationCommandType.User) {
 								// UserContextMenuCommand
-								this.collections.userCtxCommands.set(item.data.name, item);
+								collections.userCtxCommands.set(item.data.name, item);
 							} else if (item.data.type == ApplicationCommandType.Message) {
 								// MessageContextMenuCommand
-								this.collections.messageCtxCommands.set(item.data.name, item);
+								collections.messageCtxCommands.set(item.data.name, item);
 							}
 						} else {
 							// SlashCommand
-							this.collections.slashCommands.set(item.data.name, item);
+							collections.slashCommands.set(item.data.name, item);
 						}
 					} else if ('customId' in item) {
 						// Any Component
-						this.collections.components.set(item.customId, item);
+						collections.components.set(item.customId, item);
 					}
 				}
-			});
+			}
 		}
+		return new WrapperCollection(collections, options);
 	}
 
 	/**

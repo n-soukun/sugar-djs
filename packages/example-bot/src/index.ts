@@ -8,7 +8,7 @@ const client = new Client({
 	intents: [GatewayIntentBits.Guilds],
 });
 
-client.once('ready', () => {
+client.once('clientReady', () => {
 	console.log(`Ready! Logged in as ${client.user?.tag}`);
 });
 

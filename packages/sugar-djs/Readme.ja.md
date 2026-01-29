@@ -89,12 +89,14 @@ export const isCachedInteraction = <T extends AnyInteraction, U>({
 import path from 'path';
 import { WrapperCollection } from 'sugar-djs';
 
-const commandsPath = path.join(__dirname, './commands');
-const componentsPath = path.join(__dirname, './components');
+const commandsPath = path.join(import.meta.dirname, './commands');
+const componentsPath = path.join(import.meta.dirname, './components');
 
-export default new WrapperCollection({
+const collection = await WrapperCollection.create({
 	paths: [commandsPath, componentsPath],
 });
+
+export default collection;
 ```
 
 ### 2.discord.jsに接続
