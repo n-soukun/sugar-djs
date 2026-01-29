@@ -45,7 +45,10 @@ export class WrapperCollection {
 				const filePath = path.join(currentDir, dirent.name);
 				if (dirent.isDirectory()) {
 					pathList.push(filePath); // ディレクトリの場合は探索キューに追加
-				} else if (dirent.name.endsWith('.js') || dirent.name.endsWith('.ts')) {
+				} else if (
+					dirent.name.endsWith('.js') ||
+					(dirent.name.endsWith('.ts') && !dirent.name.endsWith('.d.ts'))
+				) {
 					let fileData: unknown = require(filePath);
 					if (!fileData) return;
 					if (typeof fileData === 'object' && 'default' in fileData) {
