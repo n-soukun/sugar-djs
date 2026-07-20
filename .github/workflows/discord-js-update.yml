@@ -1,0 +1,124 @@
+name: Discord.js compatibility update
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+env:
+  CI: true
+
+concurrency:
+  group: discord-js-compatibility-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-test-pr:
+    name: Update, test and create pull request
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Detect and prepare discord.js update
+        id: discord-js
+        shell: bash
+        run: |
+          latest_version="$(npm view discord.js version)"
+          node .github/scripts/prepare-discord-js-update.mjs "$latest_version"
+
+      - name: Check for an existing pull request
+        if: steps.discord-js.outputs.updated == 'true'
+        id: existing-pr
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: deps/discord-js-${{ steps.discord-js.outputs.latest }}
+        run: |
+          if gh pr list --state open --head "$BRANCH_NAME" --json number --jq 'length > 0' | grep -q true; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "An open pull request for discord.js ${{ steps.discord-js.outputs.latest }} already exists."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install updated dependencies
+        if: steps.discord-js.outputs.updated == 'true' && steps.existing-pr.outputs.exists != 'true'
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run runtime and type compatibility tests
+        if: steps.discord-js.outputs.updated == 'true' && steps.existing-pr.outputs.exists != 'true'
+        run: pnpm --filter sugar-djs test:compat
+
+      - name: Commit update
+        if: steps.discord-js.outputs.updated == 'true' && steps.existing-pr.outputs.exists != 'true'
+        shell: bash
+        env:
+          BRANCH_NAME: deps/discord-js-${{ steps.discord-js.outputs.latest }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --create "$BRANCH_NAME"
+          git add packages/sugar-djs/package.json pnpm-lock.yaml .changeset
+          git commit -m "chore: support discord.js ${{ steps.discord-js.outputs.latest }}"
+          git push --set-upstream origin "$BRANCH_NAME"
+
+      - name: Create pull request
+        if: steps.discord-js.outputs.updated == 'true' && steps.existing-pr.outputs.exists != 'true'
+        id: create-pr
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: deps/discord-js-${{ steps.discord-js.outputs.latest }}
+        run: |
+          pr_url="$(gh pr create \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --title "chore: support discord.js ${{ steps.discord-js.outputs.latest }}" \
+            --body "Automated compatibility update for discord.js ${{ steps.discord-js.outputs.latest }}. Runtime and TypeScript compatibility tests passed. This pull request includes the patch changeset used by the existing release workflow.")"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Discord
+        if: steps.create-pr.outputs.url != ''
+        shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_JS_VERSION: ${{ steps.discord-js.outputs.latest }}
+          PR_URL: ${{ steps.create-pr.outputs.url }}
+        run: |
+          payload="$(jq --null-input \
+            --arg version "$DISCORD_JS_VERSION" \
+            --arg url "$PR_URL" \
+            '{
+              username: "sugar-djs updater",
+              embeds: [{
+                title: ("discord.js " + $version + " compatibility update"),
+                description: "互換性テストに成功し、Changesetを含むPull Requestを作成しました。",
+                url: $url,
+                color: 5865245,
+                fields: [{ name: "discord.js", value: $version, inline: true }]
+              }]
+            }')"
+          curl --fail-with-body \
+            --header "Content-Type: application/json" \
+            --request POST \
+            --data "$payload" \
+            "$DISCORD_WEBHOOK_URL"

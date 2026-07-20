@@ -1,19 +1,16 @@
-# Sugar-DJS (discordjs-builder-wrapper)
+# Sugar-DJS
 
-discord.jsをTypeScriptでもっと楽しく書くためのライブラリ！
+**English** | [日本語](./Readme.ja.md)
 
-## 対応バージョン
+A library that makes writing discord.js bots in TypeScript easier and more enjoyable!
 
-| package version | discord.js version |
-|----|----|
-| 0.5.0 | >=14.25.0 <15 |
-| 0.4.0 | >=14.23.2 <14.25 |
-| 0.3.0 | 14.24.0 |
-| 0.2.1 | 14.23.2 |
+## Supported Versions
 
-## 使い方の例
+See `package.json` for the supported `discord.js` versions of each release.
 
-`SlashCommand`のサンプル
+## Usage Example
+
+Example `SlashCommand`:
 
 ```typescript
 import { wrapper } from 'sugar-djs';
@@ -22,50 +19,50 @@ import { isCachedInteraction } from './middlewares.ts';
 
 export default wrapper
 	.setCommand(
-        // discord.jsのBuilderをそのまま使用
-        new SlashCommandBuilder()
-            .setName('ping')
-            .setDescription('Send "Pong!"')
-    )
-    .addMiddleware(isCachedInteraction) // キャッシュされたインタラクションのみ許可
+		// Use a discord.js builder as-is
+		new SlashCommandBuilder()
+			.setName('ping')
+			.setDescription('Send "Pong!"')
+	)
+	.addMiddleware(isCachedInteraction) // Allow only cached interactions
 	.setProcess(({ interaction }) => {
-        // interaction: ChatInputCommandInteraction<"cached">;
+		// interaction: ChatInputCommandInteraction<"cached">;
 		interaction.reply('Pong!');
 	});
 ```
 
-## 特徴
+## Features
 
-`Sugar-DJS`を使うと、一部の型指定を省略したり、共通の処理を簡単に挿入できたりすることで、素早くボットを制作することができます。
+`Sugar-DJS` helps you build bots quickly by reducing the amount of explicit type annotation you need and making it easy to insert shared processing logic.
 
-### 適切なInteraction型を推論
+### Infers the Appropriate Interaction Type
 
-`Sugar-DJS`は、渡された`Builder`からコマンドハンドラーの`interaction`の型を推論します。
+`Sugar-DJS` infers the command handler's `interaction` type from the provided `Builder`.
 
 ```typescript
-// 型を手動で指定する例
-export const command = new SlashCommandBuilder().setName('ping')
+// Specifying the type manually
+export const command = new SlashCommandBuilder().setName('ping');
 export const execute = (interaction: ChatInputCommandInteraction) => {
 	interaction.reply('Pong!');
-} 
+};
 ```
 
 ```typescript
-// Sugar-DJSのコード
+// With Sugar-DJS
 export default wrapper
-	.setCommand(
-		new SlashCommandBuilder().setName('ping')
-    )
-	.setProcess(({ interaction }) => { // 型が適切に推論されます
+	.setCommand(new SlashCommandBuilder().setName('ping'))
+	.setProcess(({ interaction }) => {
+		// The correct type is inferred automatically
 		interaction.reply('Pong!');
 	});
 ```
 
-### ミドルウェア概念の導入
+### Middleware Support
 
-コマンドやコンポーネントの処理の前に、ミドルウェアを追加することができます。ミドルウェアは、`Interaction`を含むペイロードに対して処理を行い、追加のデータを返すことができます。また、ペイロードの形を絞る事もできます。
+You can add middleware before command or component handlers. Middleware processes a payload containing an `Interaction` and may return additional data. It can also narrow the shape of the payload.
 
-#### Interactionが'cached'であることを確認する例
+#### Checking That an Interaction Is Cached
+
 ```typescript
 import { AnyInteraction, MiddlewarePayload } from 'sugar-djs';
 
@@ -74,18 +71,18 @@ export const isCachedInteraction = <T extends AnyInteraction, U>({
 	...payload
 }: MiddlewarePayload<T, U>) => {
 	if (!interaction.inCachedGuild()) {
-		interaction.reply("サーバー内で実行してください");
-		return; // voidを返した場合、次の処理は実行されません。
+		interaction.reply('Please run this command in a server.');
+		return; // Returning void prevents the next handler from running.
 	}
 	return { interaction, ...payload };
 };
 ```
 
-## 導入方法
+## Setup
 
-### 1. sugardjs.tsの作成
+### 1. Create `sugardjs.ts`
 
-コマンドやコンポーネントが格納されているディレクトリを指定して、`WrapperCollection`のインスタンスを作成します。
+Create a `WrapperCollection` instance by specifying the directories that contain your commands and components.
 
 ```typescript
 // sugardjs.ts
@@ -95,26 +92,26 @@ import { WrapperCollection } from 'sugar-djs';
 const commandsPath = path.join(__dirname, './commands');
 const componentsPath = path.join(__dirname, './components');
 
-export default new WrapperCollection({
+export default await WrapperCollection.create({
 	paths: [commandsPath, componentsPath],
 });
 ```
 
-### 2.discord.jsに接続
+### 2. Connect It to discord.js
 
-手順1で作成した`WrapperCollection`の`interactionCreateHandler`をdiscord.jsの`InteractionCreate`イベントのハンドラーとして渡します。
+Pass the `interactionCreateHandler` from the `WrapperCollection` created in step 1 to the discord.js `InteractionCreate` event handler.
 
 ```typescript
 // index.ts
-import wrappers from "./sugardjs";
-...
+import wrappers from './sugardjs';
+// ...
 client.on('interactionCreate', wrappers.interactionCreateHandler);
-...
+// ...
 ```
 
-### 3.register.tsの作成
+### 3. Create `register.ts`
 
-手順1で作成した`WrapperCollection`の`toJSON`メソッドを活用すると、簡単にコマンドやコンポーネントを登録する処理が書けます。
+The `toJSON` method on the `WrapperCollection` created in step 1 makes it easy to register commands and components.
 
 ```typescript
 // register.ts
@@ -125,11 +122,12 @@ const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
-const commands = wrappers.toJSON(); // Discord API に渡せるJSONのリストを返します。
+const commands = wrappers.toJSON(); // Returns a list of JSON objects accepted by the Discord API.
 await rest.put(Routes.applicationCommands(CLIENT_ID), {
-    body: commands,
+	body: commands,
 });
 ```
 
-## ライセンス
-MIT License (see `LICENSE` file).
+## License
+
+MIT License (see the `LICENSE` file).

@@ -8,7 +8,9 @@
 	"scripts": {
 		"build": "tsc",
 		"prepare": "npm run build",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "npm run build && node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+		"test:types": "tsc --project tsconfig.test.json --noEmit",
+		"test:compat": "npm run test && npm run test:types"
 	},
 	"author": "soukun",
 	"license": "MIT",
@@ -18,13 +20,14 @@
 		"url": "git+https://github.com/n-soukun/sugar-djs.git"
 	},
 	"peerDependencies": {
-		"discord.js": ">=14.25.0 <15"
+		"discord.js": ">=14.25.0 <14.28.0"
 	},
 	"dependencies": {
 		"zod": "^4.1.12"
 	},
 	"devDependencies": {
 		"discord.js": "14.25.0",
+		"jest": "^30.0.0",
 		"typescript": "^5.9.3"
 	}
 }
