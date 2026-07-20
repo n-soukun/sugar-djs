@@ -1,5 +1,20 @@
-/node_modules
-/src
-tsconfig.json
-.prettierrc
-.gitignore
+# Development source and tests
+/src/
+/test/
+
+# Installed dependencies and lockfiles
+/node_modules/
+/package-lock.json
+/pnpm-lock.yaml
+
+# Build, test, and editor configuration
+/tsconfig.json
+/tsconfig.test.json
+/jest.config.cjs
+/.prettierrc
+/.prettierignore
+/.gitignore
+
+# Source and declaration maps are not required at runtime
+/dist/*.js.map
+/dist/*.d.ts.map
