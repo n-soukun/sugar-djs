@@ -2,6 +2,7 @@
   "name": "sugar-djs-monorepo",
   "version": "1.0.0",
   "description": "",
+  "private": true,
   "scripts": {
     "core": "pnpm --filter sugar-djs",
     "example-bot": "pnpm --filter simple-bot",
